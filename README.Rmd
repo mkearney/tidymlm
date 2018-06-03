@@ -1,0 +1,198 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+  eval = TRUE
+)
+options(width = 100)
+```
+# tidyversity <img src="man/figures/logo.png" width="160px" align="right" /> 
+
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
+🎓 Tidy tools for academics
+
+
+## \*\*\* This package is in very early development. Feedback is encouraged!!! \*\*\*
+
+## Installation
+
+<!-- You can install the released version of tidyversity from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("tidyversity")
+```
+-->
+
+Install the development version from [Github](https://github.com/mkearney/tidyversity) with:
+
+```{r install, eval=FALSE}
+## install devtools if not already
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+## install tidyversity from Github
+devtools::install_github("mkearney/tidyversity")
+```
+
+Load the package (it, of course, plays nicely with tidyverse).
+
+```{r library}
+## load tidyverse
+library(tidyverse)
+
+## load tidyversity
+library(tidyversity)
+```
+
+## Regression models
+
+### Ordinary Least Squares (OLS)
+
+Conduct an Ordinary Least Squares (OLS) regression analysis.
+
+```{r ols}
+polcom %>%
+  tidy_regression(follow_trump ~ news_1 + ambiv_sexism_1) %>%
+  tidy_summary()
+```
+
+### Logistic (dichotomous)
+
+Conduct a logistic regression analysis for binary (dichotomous) outcomes.
+
+```{r logistic}
+polcom %>%
+  tidy_regression(follow_trump ~ news_1 + ambiv_sexism_1, type = "logistic") %>%
+  tidy_summary()
+```
+
+### Poisson (count)
+
+Conduct a poisson regression analysis for count data.
+
+```{r poisson}
+polcom %>%
+  mutate(polarize = abs(therm_1 - therm_2)) %>%
+  tidy_regression(polarize ~ news_1 + ambiv_sexism_1, type = "poisson") %>%
+  tidy_summary()
+```
+
+### Negative binomial (overdispersed)
+
+Conduct a negative binomial regression analysis for overdispersed count data.
+
+```{r, negbinom}
+polcom %>%
+  mutate(polarize = abs(therm_1 - therm_2)) %>%
+  tidy_regression(polarize ~ news_1 + ambiv_sexism_1, type = "negbinom") %>%
+  tidy_summary()
+```
+
+### Robust and quasi- models
+
+```{r, robust_glm}
+polcom %>%
+  mutate(polarize = abs(therm_1 - therm_2)) %>%
+  tidy_regression(polarize ~ news_1 + ambiv_sexism_1, 
+    type = "quasipoisson", robust = TRUE) %>%
+  tidy_summary()
+```
+
+## Mean comparison models
+
+### ANOVA
+
+Conduct an analysis of variance (ANOVA).
+
+```{r anova}
+polcom %>%
+  mutate(sex = ifelse(sex == 1, "Male", "Female"),
+  vote_choice = case_when(
+    vote_2016_choice == 1 ~ "Clinton",
+    vote_2016_choice == 2 ~ "Trump",
+    TRUE ~ "Other")) %>%
+  tidy_anova(pp_party ~ sex * vote_choice) %>%
+  tidy_summary()
+```
+
+### t-tests
+
+```{r ttest}
+polcom %>%
+  tidy_ttest(pp_ideology ~ follow_trump) %>%
+  tidy_summary()
+```
+
+## Latent variable models
+
+### Structural equation modeling (SEM)
+
+Conduct latent variable analysis using structural equation modeling.
+
+```{r sem}
+## mutate data and then specify and estimate model
+sem1 <- polcom %>%
+  mutate(therm_2 = therm_2 / 10, 
+    therm_1 = 10 - therm_1 / 10) %>%
+  tidy_sem_model(news =~ news_1 + news_2 + news_3 + news_4 + news_5 + news_6,
+    ambiv_sexism =~ ambiv_sexism_1 + ambiv_sexism_2 + ambiv_sexism_3 + 
+      ambiv_sexism_4 + ambiv_sexism_5 + ambiv_sexism_6,
+    partisan =~ a*therm_1 + a*therm_2,
+    ambiv_sexism ~ age + sex + hhinc + edu + news + partisan) %>%
+  tidy_sem()
+
+## print model summary
+sem1 %>%
+  tidy_summary()
+```
+
+### Multilevel modeling (MLM)
+
+Estimate multilevel (mixed effects) models.
+
+```{r mlm}
+lme4::sleepstudy %>%
+  tidy_mlm(Reaction ~ Days + (Days | Subject)) %>%
+  summary()
+```
+
+# Data sets
+
+Comes with one data set. 
+
+### `polcom` 
+
+Consists of survey responses to demographic, background, and likert-type attitudinal items about political communication.
+
+```{r polcom}
+print(tibble::as_tibble(polcom), n = 5)
+```
+
+## Descriptive statistics
+
+Return summary statistics in the form of a data frame ***(not yet added)***.
+
+```{r summarize, eval=FALSE}
+## summary stats for social media use (numeric) variables
+summarize_numeric(polcom_survey, smuse1:smuse3)
+
+## summary stats for respondent sex and race (categorical) variables
+summarize_categorical(polcom_survey, sex, race)
+```
+
+Estimate Cronbach's alpha for a set of variables.
+
+```{r reliability}
+## reliability of social media use items
+cronbachs_alpha(polcom, ambiv_sexism_1:ambiv_sexism_6)
+```
+
