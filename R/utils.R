@@ -87,26 +87,6 @@ is_mlm <- function(x) {
 }
 
 std_model_type <- function(type) {
-  if (is_ttest(type)) {
-    type <- "ttest"
-  } else if (is_ols(type)) {
-    type <- "ols"
-  } else if (is_log(type)) {
-    type <- "log"
-  } else if (is_qlog(type)) {
-    type <- "qlog"
-  } else if (is_pois(type)) {
-    type <- "pois"
-  } else if (is_qpois(type)) {
-    type <- "qpois"
-  } else if (is_negbinom(type)) {
-    type <- "negbin"
-  } else if (is_anova(type)) {
-    type <- "anova"
-  } else if (is_sem(type)) {
-    type <- "sem"
-  } else if (is_mlm(type)) {
-    type <- "mlm"
-  }
+  type <- "mlm"
   type
 }

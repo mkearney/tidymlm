@@ -30,29 +30,7 @@ store_tidycall <- function(dims, expr) {
   lst$model <- model
   ## type of model
   ## extract type from expr
-  if (type_ttest(expr)) {
-    lst$type <- "ttest"
-  } else if (type_ols(expr)) {
-    lst$type <- "ols"
-  } else if (type_anova(expr)) {
-    lst$type <- "anova"
-  } else if (type_log(expr)) {
-    lst$type <- "log"
-  } else if (type_qlog(expr)) {
-    lst$type <- "qlog"
-  } else if (type_pois(expr)) {
-    lst$type <- "pois"
-  } else if (type_qpois(expr)) {
-    lst$type <- "qpois"
-  } else if (type_negbin(expr)) {
-    lst$type <- "negbin"
-  } else if (type_sem(expr)) {
-    lst$type <- "sem"
-  } else if (type_mlm(expr)) {
-    lst$type <- "mlm"
-  } else {
-    stop("can't determine function type")
-  }
+  lst$type <- "mlm"
   ## whether the model is robust
   if (is_robust(expr)) {
     lst$robust <- TRUE
@@ -86,27 +64,7 @@ print.tidycall <- function(x) {
   } else {
     type <- x$type
   }
-  if (is_ttest(type)) {
-    type <- "T-test"
-  } else if (is_ols(type)) {
-    type <- "Ordinary Least Squares (OLS) regression"
-  } else if (is_anova(type)) {
-    type <- "Analysis of variance (ANOVA)"
-  } else if (is_log(type)) {
-    type <- "Logistic regression"
-  } else if (is_qlog(type)) {
-    type <- "Quasi-logistic regression"
-  } else if (is_pois(type)) {
-    type <- "Poisson regression"
-  } else if (is_qpois(type)) {
-    type <- "Quasi-poisson regression"
-  } else if (is_negbin(type)) {
-    type <- "Negative binomial regression"
-  } else if (is_sem(type)) {
-    type <- "Structural Equation Model (SEM)"
-  } else if (is_mlm(type)) {
-    type <- "Multilevel Model (MLM)"
-  }
+  type <- "Multilevel Model (MLM)"
   ## format robust (if applicable)
   if (type != "" && x$robust) {
     type <- paste0("[Robust] ", type)
